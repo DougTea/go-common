@@ -1,4 +1,4 @@
-module devgit.westwell.cc/jiaqing.kuang/common
+module github.com/DougTea/go-common
 
 go 1.17
 
