@@ -20,7 +20,7 @@ func ErrorFormatMiddleWare(c *gin.Context) {
 	if len(c.Errors) > 0 {
 		last := c.Errors.Last()
 		v := &Error{}
-		if !errors.As(last.Err, v) {
+		if !errors.As(last.Err, &v) {
 			v = NewErrorWithCause(CommonError, last.Err)
 		}
 		status, err := strconv.Atoi(v.Code.String()[:3])
