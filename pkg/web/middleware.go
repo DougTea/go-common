@@ -2,7 +2,9 @@ package web
 
 import (
 	"errors"
+	"log/slog"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -18,10 +20,20 @@ type ErrorMessage struct {
 func ErrorFormatMiddleWare(c *gin.Context) {
 	c.Next()
 	if len(c.Errors) > 0 {
-		last := c.Errors.Last()
+		var err error
+		err = c.Errors.Last()
 		v := &Error{}
-		if !errors.As(last.Err, &v) {
-			v = NewErrorWithCause(CommonError, last.Err)
+		errMsg := new(strings.Builder)
+		errMsg.WriteString(err.Error())
+		for errors.As(err, &v) {
+			errMsg.WriteString("\n")
+			errMsg.WriteString("Cause by:\n")
+			errMsg.WriteString(v.Msg)
+			err = v.Cause
+		}
+		slog.Error(errMsg.String())
+		if !errors.As(c.Errors.Last(), &v) {
+			v = NewErrorWithCause(CommonError, err)
 		}
 		status, err := strconv.Atoi(v.Code.String()[:3])
 		if err != nil || status < 100 || status > 599 {
