@@ -26,10 +26,13 @@ func ErrorFormatMiddleWare(c *gin.Context) {
 		errMsg := new(strings.Builder)
 		errMsg.WriteString(err.Error())
 		for errors.As(err, &v) {
-			errMsg.WriteString("\n")
-			errMsg.WriteString("Cause by:\n")
-			errMsg.WriteString(v.Msg)
 			err = v.Cause
+			if err != nil {
+				errMsg.WriteString("\n")
+				errMsg.WriteString("Cause by:\n")
+				errMsg.WriteString(err.Error())
+				errMsg.WriteString("\n")
+			}
 		}
 		slog.Error(errMsg.String())
 		if !errors.As(c.Errors.Last(), &v) {
